@@ -71,6 +71,6 @@ def predict():
         return redirect(url_for('index'))
 
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
+#uncomment this for runnin in local environment
+#if __name__ == "__main__":
+    #app.run(debug=True)
