@@ -179,8 +179,9 @@
         </div>
 
         <!-- Result container -->
+        <!-- Result container -->
         <div class="result-container">
-          {% if result %}
+          {% if result and crop_image %}
           <h2 class="text-success text-center">Prediction Result</h2>
           <div class="card bg-dark text-center">
             <img
@@ -192,6 +193,14 @@
               <h5 class="card-title">{{ result.split(" ")[0] }}</h5>
               <p class="card-text">{{ result }}</p>
             </div>
+          </div>
+          {% else %}
+          <h2 class="text-muted text-center">No Prediction Available</h2>
+          <div class="text-center text-muted">
+            <p>
+              Please enter the crop details and click "Get Recommendation" to
+              see the result.
+            </p>
           </div>
           {% endif %}
         </div>
