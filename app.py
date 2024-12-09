@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, session
 import numpy as np
 import pickle
 
@@ -9,6 +9,7 @@ ms = pickle.load(open('minmaxscaler.pkl', 'rb'))
 
 # Create Flask app
 app = Flask(__name__)
+app.secret_key = "your_secret_key"  # Required for session handling
 
 # Crop-to-image mapping
 crop_image_dict = {
@@ -19,12 +20,17 @@ crop_image_dict = {
     20: "kidneybeans.jpg", 21: "chickpea.jpg", 22: "coffee.jpg"
 }
 
-# Home route (clears prediction)
+# Home route
 
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html", result=None, crop_image=None)
+    # Retrieve results from the session, if available
+    result = session.get("result")
+    crop_image = session.get("crop_image")
+    # Clear the session after rendering
+    session.clear()
+    return render_template("index.html", result=result, crop_image=crop_image)
 
 # Predict route
 
@@ -45,6 +51,7 @@ def predict():
         feature_list = [N, P, K, temp, humidity, ph, rainfall]
         single_pred = np.array(feature_list).reshape(1, -1)
 
+        # Process features with the model
         scaled_features = ms.transform(single_pred)
         final_features = sc.transform(scaled_features)
         prediction = model.predict(final_features)
@@ -64,11 +71,15 @@ def predict():
             result = "Sorry, we could not determine the best crop to be cultivated with the provided data."
             crop_image = "default.jpg"
 
-        # Store results in session
-        return render_template('index.html', result=result, crop_image=crop_image)
+        # Store results in session and redirect to the index page
+        session["result"] = result
+        session["crop_image"] = crop_image
+        return redirect(url_for('index'))
+
     except Exception as e:
         print(f"Error: {e}")
         return redirect(url_for('index'))
+
 
 
 #uncomment this for runnin in local environment
